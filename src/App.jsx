@@ -3,7 +3,10 @@ import './App.css'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import csvUrl from '../Warehouse_and_Retail_Sales.csv?url'
 import { TimeSeriesChart } from './components/TimeSeriesChart.jsx'
+import { AuthCard } from './components/AuthCard.jsx'
 import { parseCsvRow } from './utils/csv.js'
+import { auth, firebaseInitError } from './firebase.js'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
 
 const moneyFmt = new Intl.NumberFormat(undefined, {
   maximumFractionDigits: 0,
@@ -192,6 +195,7 @@ function pickAggForSelection({ selection, monthKeys, totals, bySupplier }) {
 
 function App() {
   const abortRef = useRef(null)
+  const [authState, setAuthState] = useState({ status: 'loading', user: null })
   const [loadState, setLoadState] = useState({ status: 'idle' })
   const [supplierQuery, setSupplierQuery] = useState('')
   const [selectedSupplier, setSelectedSupplier] = useState('__ALL__')
@@ -200,6 +204,20 @@ function App() {
   const [showWarehouseSales, setShowWarehouseSales] = useState(true)
 
   useEffect(() => {
+    if (firebaseInitError || !auth) {
+      setAuthState({ status: 'ready', user: null })
+      return
+    }
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setAuthState({ status: 'ready', user })
+    })
+    return () => unsub()
+  }, [])
+
+  useEffect(() => {
+    // Only load & parse the large CSV after the user is logged in / registered.
+    if (authState.status !== 'ready' || !authState.user) return
+
     abortRef.current?.abort?.()
     const ctrl = new AbortController()
     abortRef.current = ctrl
@@ -216,7 +234,7 @@ function App() {
       })
 
     return () => ctrl.abort()
-  }, [])
+  }, [authState.status, authState.user])
 
   const data = loadState.status === 'ready' ? loadState.data : null
 
@@ -290,9 +308,32 @@ function App() {
             <strong>Retail Transfers</strong>, and <strong>Warehouse Sales</strong>.
           </p>
         </div>
+        {authState.status === 'ready' && authState.user ? (
+          <div className="userBar">
+            <div className="userText">
+              <div className="userTitle">Thank you for your support.</div>
+              <div className="userEmail">{authState.user.email}</div>
+            </div>
+            <button type="button" className="userBtn" onClick={() => signOut(auth)}>
+              Sign out
+            </button>
+          </div>
+        ) : null}
       </header>
 
-      <main className="grid">
+      {authState.status !== 'ready' ? (
+        <main className="grid single">
+          <section className="card authCard">
+            <div className="cardTitle">Loading…</div>
+            <div className="chartPlaceholder">Checking login status…</div>
+          </section>
+        </main>
+      ) : !authState.user ? (
+        <main className="grid single">
+          <AuthCard />
+        </main>
+      ) : (
+        <main className="grid">
         <section className="card controls">
           <div className="cardTitle">Filters</div>
 
@@ -422,6 +463,7 @@ function App() {
           )}
         </section>
       </main>
+      )}
     </div>
   )
 }
