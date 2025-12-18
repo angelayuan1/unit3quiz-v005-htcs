@@ -1,19 +1,19 @@
 .page {
   width: min(1200px, calc(100vw - 48px));
-  margin: 28px auto 56px;
+  margin: 28px auto 64px;
 }
 
 .header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
+  gap: 18px;
+  margin-bottom: 20px;
 }
 
 .title {
   margin: 0;
-  font-size: 26px;
+  font-size: 28px;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
@@ -27,7 +27,7 @@
 .grid {
   display: grid;
   grid-template-columns: 360px 1fr;
-  gap: 14px;
+  gap: 16px;
   align-items: start;
 }
 
@@ -38,16 +38,16 @@
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25), 0 8px 30px rgba(0, 0, 0, 0.25);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
 }
 
 .controls {
-  padding: 14px;
+  padding: 16px;
 }
 
 .chart {
-  padding: 14px;
+  padding: 16px;
 }
 
 .userBar {
@@ -55,9 +55,10 @@
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
 }
 
 .userText {
@@ -79,8 +80,8 @@
 
 .userBtn {
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  background: var(--card);
   padding: 8px 10px;
 }
 
@@ -104,18 +105,18 @@
 .input,
 .select {
   width: 100%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  padding: 10px 10px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 12px;
   color: var(--text);
   outline: none;
 }
 
 .input:focus,
 .select:focus {
-  border-color: rgba(96, 165, 250, 0.75);
-  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18);
+  border-color: rgba(37, 99, 235, 0.55);
+  box-shadow: 0 0 0 4px var(--primary-bg);
 }
 
 .checks {
@@ -129,17 +130,17 @@
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card2);
 }
 
 .status {
   margin-top: 14px;
   padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card2);
 }
 
 .statusRow {
@@ -159,31 +160,31 @@
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: #60a5fa;
-  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18);
+  background: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-bg);
 }
 
 .statusDot.ok {
-  background: #34d399;
-  box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.18);
+  background: var(--success);
+  box-shadow: 0 0 0 4px var(--success-bg);
 }
 
 .statusDot.error {
-  background: #fb7185;
-  box-shadow: 0 0 0 4px rgba(251, 113, 133, 0.18);
+  background: var(--danger);
+  box-shadow: 0 0 0 4px var(--danger-bg);
 }
 
 .status.error {
-  border-color: rgba(251, 113, 133, 0.35);
-  background: rgba(251, 113, 133, 0.08);
+  border-color: rgba(225, 29, 72, 0.28);
+  background: var(--danger-bg);
 }
 
 .chartPlaceholder {
   height: 420px;
   display: grid;
   place-items: center;
-  border-radius: 12px;
-  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  border: 1px dashed rgba(15, 23, 42, 0.22);
   color: var(--muted);
 }
 
@@ -209,16 +210,16 @@
 
 .authTab {
   width: 100%;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card2);
   padding: 10px 12px;
   font-weight: 650;
 }
 
 .authTab.active {
-  border-color: rgba(96, 165, 250, 0.7);
-  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
+  border-color: rgba(37, 99, 235, 0.55);
+  box-shadow: 0 0 0 4px var(--primary-bg);
 }
 
 .authStance {
@@ -226,11 +227,11 @@
 }
 
 .stanceBox {
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  padding: 10px 12px;
-  color: rgba(255, 255, 255, 0.9);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  padding: 12px 12px;
+  color: var(--text);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -238,29 +239,29 @@
 .authError {
   margin: 10px 0;
   padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(251, 113, 133, 0.35);
-  background: rgba(251, 113, 133, 0.08);
-  color: rgba(255, 255, 255, 0.92);
+  border-radius: 14px;
+  border: 1px solid rgba(225, 29, 72, 0.25);
+  background: var(--danger-bg);
+  color: var(--text);
   font-size: 13px;
 }
 
 .authInfo {
   margin: 10px 0;
   padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(96, 165, 250, 0.35);
-  background: rgba(96, 165, 250, 0.08);
-  color: rgba(255, 255, 255, 0.92);
+  border-radius: 14px;
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  background: var(--primary-bg);
+  color: var(--text);
   font-size: 13px;
 }
 
 .authSubmit {
   width: 100%;
   margin-top: 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(96, 165, 250, 0.65);
-  background: rgba(96, 165, 250, 0.18);
+  border-radius: 14px;
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  background: var(--primary-bg);
   padding: 10px 12px;
   font-weight: 750;
 }
@@ -281,7 +282,7 @@
   border: none;
   background: transparent;
   padding: 0;
-  color: #60a5fa;
+  color: var(--primary);
   text-decoration: underline;
 }
 
@@ -295,7 +296,7 @@
 .intent {
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid var(--border);
 }
 
 .intentTitle {
@@ -319,16 +320,16 @@
 }
 
 .intentBtn {
-  border-radius: 12px;
-  border: 1px solid rgba(96, 165, 250, 0.65);
-  background: rgba(96, 165, 250, 0.18);
+  border-radius: 14px;
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  background: var(--primary-bg);
   padding: 10px 12px;
   font-weight: 750;
 }
 
 .intentBtn.secondary {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border);
+  background: var(--card2);
   font-weight: 650;
 }
 
@@ -343,8 +344,8 @@
 
 .summaryItem {
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  background: var(--card2);
   padding: 10px 12px;
 }
 
@@ -370,28 +371,28 @@
   height: auto;
   display: block;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.02), rgba(15, 23, 42, 0.01));
 }
 
 .tsGrid {
-  stroke: rgba(255, 255, 255, 0.08);
+  stroke: rgba(15, 23, 42, 0.10);
   stroke-width: 1;
 }
 
 .tsAxisText {
-  fill: rgba(255, 255, 255, 0.72);
+  fill: rgba(15, 23, 42, 0.65);
   font-size: 12px;
 }
 
 .tsAxisLabel {
-  fill: rgba(255, 255, 255, 0.72);
+  fill: rgba(15, 23, 42, 0.65);
   font-size: 12px;
   font-weight: 650;
 }
 
 .tsHoverLine {
-  stroke: rgba(255, 255, 255, 0.25);
+  stroke: rgba(15, 23, 42, 0.22);
   stroke-width: 1;
   stroke-dasharray: 3 4;
 }
@@ -409,10 +410,10 @@
   gap: 8px;
   padding: 6px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  background: var(--card2);
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(15, 23, 42, 0.84);
 }
 
 .tsLegendSwatch {
@@ -425,8 +426,8 @@
 .tsTooltip {
   margin-top: 10px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border);
+  background: var(--card);
   padding: 10px 12px;
 }
 
@@ -442,11 +443,11 @@
   align-items: center;
   padding: 3px 0;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(15, 23, 42, 0.9);
 }
 
 .tsTooltipName {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(15, 23, 42, 0.7);
 }
 
 .tsTooltipVal {

@@ -364,7 +364,8 @@ function App() {
       series.push({
         id: 'retailSales',
         name: 'Retail Sales',
-        color: '#60a5fa',
+        // Sandstone palette (indigo)
+        color: '#4f46e5',
         values: monthAggs.map((a) => a.retailSales),
       })
     }
@@ -372,7 +373,8 @@ function App() {
       series.push({
         id: 'retailTransfers',
         name: 'Retail Transfers',
-        color: '#34d399',
+        // Sandstone palette (amber)
+        color: '#f59e0b',
         values: monthAggs.map((a) => a.retailTransfers),
       })
     }
@@ -380,7 +382,8 @@ function App() {
       series.push({
         id: 'warehouseSales',
         name: 'Warehouse Sales',
-        color: '#f472b6',
+        // Sandstone palette (teal)
+        color: '#0f766e',
         values: monthAggs.map((a) => a.warehouseSales),
       })
     }
