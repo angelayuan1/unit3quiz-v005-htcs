@@ -1,27 +1,6 @@
 import { useMemo, useState } from 'react'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
-import { auth, db, firebaseInitError } from '../firebase.js'
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
-
-const STANCE_TEXT =
-  'I support using this data to promote transparency and responsible distribution (track monthly trends and reduce unnecessary retail transfers).'
-
-async function upsertVoterDoc({ uid, email }) {
-  if (!db) return
-  const ref = doc(db, 'voters', uid)
-  await setDoc(
-    ref,
-    {
-      uid,
-      email: email || null,
-      agreedStance: true,
-      stanceText: STANCE_TEXT,
-      updatedAt: serverTimestamp(),
-      createdAt: serverTimestamp(),
-    },
-    { merge: true },
-  )
-}
+import { auth, firebaseInitError } from '../firebase.js'
 
 function friendlyError(err) {
   const msg = err instanceof Error ? err.message : String(err)
@@ -38,16 +17,14 @@ export function AuthCard() {
   const [mode, setMode] = useState('register') // 'register' | 'login'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [agree, setAgree] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
   const canSubmit = useMemo(() => {
     if (firebaseInitError || !auth) return false
     if (!email.trim() || !password) return false
-    if (mode === 'register' && !agree) return false
     return true
-  }, [email, password, mode, agree])
+  }, [email, password, mode])
 
   const submit = async (e) => {
     e.preventDefault()
@@ -59,13 +36,7 @@ export function AuthCard() {
     setBusy(true)
     try {
       if (mode === 'register') {
-        if (!agree) {
-          setError('You must agree with the stance to register to vote.')
-          return
-        }
-        const cred = await createUserWithEmailAndPassword(auth, email.trim(), password)
-        // Create a voter record in Firestore (non-optional for “voters” database).
-        await upsertVoterDoc({ uid: cred.user.uid, email: cred.user.email })
+        await createUserWithEmailAndPassword(auth, email.trim(), password)
       } else {
         await signInWithEmailAndPassword(auth, email.trim(), password)
       }
@@ -130,16 +101,6 @@ export function AuthCard() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-
-        {mode === 'register' && (
-          <div className="field">
-            <div className="label">Required to register</div>
-            <label className="check authStance">
-              <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-              <span>{STANCE_TEXT}</span>
-            </label>
-          </div>
-        )}
 
         {error ? <div className="authError">{error}</div> : null}
 

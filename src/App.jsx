@@ -7,6 +7,9 @@ import { AuthCard } from './components/AuthCard.jsx'
 import { parseCsvRow } from './utils/csv.js'
 import { auth, firebaseInitError } from './firebase.js'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { db } from './firebase.js'
+import { doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore'
+import { STANCE_TEXT, STATEMENT_OF_INTENT } from './constants/stance.js'
 
 const moneyFmt = new Intl.NumberFormat(undefined, {
   maximumFractionDigits: 0,
@@ -196,12 +199,16 @@ function pickAggForSelection({ selection, monthKeys, totals, bySupplier }) {
 function App() {
   const abortRef = useRef(null)
   const [authState, setAuthState] = useState({ status: 'loading', user: null })
+  const [voterState, setVoterState] = useState({ status: 'idle', doc: null })
   const [loadState, setLoadState] = useState({ status: 'idle' })
   const [supplierQuery, setSupplierQuery] = useState('')
   const [selectedSupplier, setSelectedSupplier] = useState('__ALL__')
   const [showRetailSales, setShowRetailSales] = useState(true)
   const [showRetailTransfers, setShowRetailTransfers] = useState(true)
   const [showWarehouseSales, setShowWarehouseSales] = useState(true)
+  const [voteIntent, setVoteIntent] = useState(null) // null | 'agree' | 'disagree'
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false)
+  const [voteError, setVoteError] = useState('')
 
   useEffect(() => {
     if (firebaseInitError || !auth) {
@@ -215,8 +222,49 @@ function App() {
   }, [])
 
   useEffect(() => {
-    // Only load & parse the large CSV after the user is logged in / registered.
-    if (authState.status !== 'ready' || !authState.user) return
+    if (firebaseInitError || !authState.user || !db) {
+      setVoterState({ status: 'idle', doc: null })
+      return
+    }
+
+    setVoterState({ status: 'loading', doc: null })
+    const uid = authState.user.uid
+    const ref = doc(db, 'voters', uid)
+
+    const unsub = onSnapshot(
+      ref,
+      async (snap) => {
+        if (!snap.exists()) {
+          // Ensure the doc exists for returning users so we can track voting status.
+          await setDoc(
+            ref,
+            {
+              uid,
+              email: authState.user.email || null,
+              hasVoted: false,
+              updatedAt: serverTimestamp(),
+              createdAt: serverTimestamp(),
+            },
+            { merge: true },
+          )
+          setVoterState({ status: 'ready', doc: { hasVoted: false } })
+          return
+        }
+        setVoterState({ status: 'ready', doc: snap.data() })
+      },
+      (err) => {
+        setVoterState({ status: 'error', error: err instanceof Error ? err : new Error(String(err)) })
+      },
+    )
+
+    return () => unsub()
+  }, [authState.user, authState.user?.uid, authState.user?.email])
+
+  const hasVoted = voterState.status === 'ready' && voterState.doc?.hasVoted === true
+  const savedVote = voterState.status === 'ready' ? voterState.doc?.vote : null
+
+  useEffect(() => {
+    // Public dashboard: load & parse CSV regardless of auth.
 
     abortRef.current?.abort?.()
     const ctrl = new AbortController()
@@ -234,7 +282,55 @@ function App() {
       })
 
     return () => ctrl.abort()
-  }, [authState.status, authState.user])
+  }, [])
+
+  useEffect(() => {
+    // If user clicked "agree" and then authenticated, persist their vote in Firestore.
+    if (voteIntent !== 'agree') return
+    if (!authState.user || !db) return
+    if (hasVoted && savedVote === 'agree') return
+
+    setVoteError('')
+    const uid = authState.user.uid
+    const ref = doc(db, 'voters', uid)
+    setDoc(
+      ref,
+      {
+        uid,
+        email: authState.user.email || null,
+        agreedStance: true,
+        stanceText: STANCE_TEXT,
+        hasVoted: true,
+        vote: 'agree',
+        votedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        createdAt: serverTimestamp(),
+      },
+      { merge: true },
+    )
+      .then(() => {
+        setShowAuthPrompt(false)
+      })
+      .catch((err) => {
+        setVoteError(err instanceof Error ? err.message : String(err))
+      })
+  }, [voteIntent, authState.user, hasVoted, savedVote])
+
+  const onAgree = () => {
+    setVoteError('')
+    setVoteIntent('agree')
+    if (authState.user) {
+      // Already logged in: the effect above will persist the vote.
+      return
+    }
+    setShowAuthPrompt(true)
+  }
+
+  const onDisagree = () => {
+    setVoteError('')
+    setVoteIntent('disagree')
+    setShowAuthPrompt(false)
+  }
 
   const data = loadState.status === 'ready' ? loadState.data : null
 
@@ -308,7 +404,7 @@ function App() {
             <strong>Retail Transfers</strong>, and <strong>Warehouse Sales</strong>.
           </p>
         </div>
-        {authState.status === 'ready' && authState.user ? (
+        {authState.status === 'ready' && authState.user && hasVoted && savedVote === 'agree' ? (
           <div className="userBar">
             <div className="userText">
               <div className="userTitle">Thank you for your support.</div>
@@ -321,19 +417,7 @@ function App() {
         ) : null}
       </header>
 
-      {authState.status !== 'ready' ? (
-        <main className="grid single">
-          <section className="card authCard">
-            <div className="cardTitle">Loading…</div>
-            <div className="chartPlaceholder">Checking login status…</div>
-          </section>
-        </main>
-      ) : !authState.user ? (
-        <main className="grid single">
-          <AuthCard />
-        </main>
-      ) : (
-        <main className="grid">
+      <main className="grid">
         <section className="card controls">
           <div className="cardTitle">Filters</div>
 
@@ -461,9 +545,40 @@ function App() {
               </div>
             </div>
           )}
+
+          <div className="intent">
+            <div className="intentTitle">Statement of Intent</div>
+            <div className="intentText">{STATEMENT_OF_INTENT}</div>
+
+            <div className="intentActions">
+              <button type="button" className="intentBtn" onClick={onAgree} disabled={hasVoted}>
+                I agree
+              </button>
+              <button type="button" className="intentBtn secondary" onClick={onDisagree} disabled={hasVoted}>
+                I disagree
+              </button>
+              {hasVoted ? (
+                <div className="intentMeta">
+                  Your vote is already recorded: <strong>{savedVote || 'unknown'}</strong>
+                </div>
+              ) : voteIntent === 'disagree' ? (
+                <div className="intentMeta">Thanks for reading — no registration needed.</div>
+              ) : null}
+            </div>
+
+            {voteError ? <div className="authError">{voteError}</div> : null}
+
+            {showAuthPrompt && authState.status === 'ready' && !authState.user ? (
+              <div className="intentAuth">
+                <div className="intentMeta" style={{ marginBottom: 10 }}>
+                  You chose <strong>Agree</strong>. Please register/login to record your vote.
+                </div>
+                <AuthCard />
+              </div>
+            ) : null}
+          </div>
         </section>
       </main>
-      )}
     </div>
   )
 }

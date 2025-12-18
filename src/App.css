@@ -225,6 +225,16 @@
   align-items: flex-start;
 }
 
+.stanceBox {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 10px 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .authError {
   margin: 10px 0;
   padding: 12px;
@@ -280,6 +290,55 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+}
+
+.intent {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.intentTitle {
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.intentText {
+  margin-top: 10px;
+  color: #000;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.intentActions {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.intentBtn {
+  border-radius: 12px;
+  border: 1px solid rgba(96, 165, 250, 0.65);
+  background: rgba(96, 165, 250, 0.18);
+  padding: 10px 12px;
+  font-weight: 750;
+}
+
+.intentBtn.secondary {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 650;
+}
+
+.intentMeta {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.intentAuth {
+  margin-top: 12px;
 }
 
 .summaryItem {
